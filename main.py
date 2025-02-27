@@ -92,14 +92,18 @@ class App(customtkinter.CTk):
         # create flight adding frame
         self.flight_adding_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
         self.flight_adding_frame.grid(row=0, column=1, sticky="ns")
+        self.navigation_frame_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Adding",
+                                                             compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
 
         # create flight finding frame
         self.flight_finding_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
+        self.navigation_frame_label = customtkinter.CTkLabel(self.flight_finding_frame, text="Finding",
+                                                             compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
 
         # create report frame
         self.report_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
-
-        self.main_select_frame_by_name("adding")
+        self.navigation_frame_label = customtkinter.CTkLabel(self.report_frame, text="Report",
+                                                             compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
 
     def main_select_frame_by_name(self, name):
         # set button color for selected button
@@ -163,6 +167,7 @@ class App(customtkinter.CTk):
         if len(result) != 0:
             self.main_frame.grid_forget()  # remove login frame
             self.home_frame.grid(row=0, column=0, sticky="nsew")
+            self.main_select_frame_by_name("adding")
 
     def register_event(self):
         # add a user to the database
