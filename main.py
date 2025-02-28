@@ -159,11 +159,12 @@ class App(customtkinter.CTk):
 
         sql = f""" INSERT INTO "flights"
         (flight_id, departure_location, arrival_location, departure_date, arrival_date, departure_time, arrival_time, price)
-        VALUES ({result[-1][0] + 1}, {self.departure_place_entry.get()}, {self.arrival_place_entry.get()}, 
-                                                            {self.departure_place_entry.get()}, {self.arrival_place_entry.get()},
-                                                            {self.departure_place_entry.get()}, {self.arrival_place_entry.get()},
-                                                            {self.price_entry.get()}) 
+        VALUES ({result[-1][0] + 1}, "{self.departure_place_entry.get()}", "{self.arrival_place_entry.get()}", 
+                                                            "{self.departure_date_entry.get()}", "{self.arrival_date_entry.get()}",
+                                                            "{self.departure_time_entry.get()}", "{self.arrival_time_entry.get()}",
+                                                            {self.price_entry.get()})
         """
+        # Изменить базу данных с DATE на TEXT
         cur.execute(sql)
         con.commit()
         con.close()
