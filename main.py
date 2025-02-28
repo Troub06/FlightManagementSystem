@@ -8,7 +8,6 @@ customtkinter.set_appearance_mode("dark")
 # Добавление полетов
 # Поиск полетов
 # Отчеты/вывод информации
-# Сделать так, чтобы при логине введенные имя пользователя и пароль стирались
 
 class App(customtkinter.CTk):
     def __init__(self, width: int, height: int):
@@ -24,7 +23,8 @@ class App(customtkinter.CTk):
                                                size=(width, height))
         self.bg_image_label = customtkinter.CTkLabel(self, image=self.bg_image)
         self.bg_image_label.grid(row=0, column=0)
-        self.logo_image = customtkinter.CTkImage(Image.open(current_path + "/assets/logo_picture.jpg"), size=(36, 36))
+        self.logo_image = customtkinter.CTkImage(Image.open(current_path + "/assets/logo_picture.png"), size=(36, 36))
+        self.logo_image_big = customtkinter.CTkImage(Image.open(current_path + "/assets/logo_picture.png"), size=(150, 150))
 
         # main frame
         self.main_frame = customtkinter.CTkFrame(self, corner_radius=0)
@@ -44,18 +44,18 @@ class App(customtkinter.CTk):
         # create login frame
         self.login_frame = customtkinter.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
         self.login_frame.grid(row=3, column=0, sticky="ns")
-        self.username_login_entry = customtkinter.CTkEntry(self.login_frame, width=200, placeholder_text="username")
+        self.username_login_entry = customtkinter.CTkEntry(self.login_frame, width=200, placeholder_text="Username")
         self.username_login_entry.grid(row=3, column=0, padx=30, pady=(15, 15))
-        self.password_login_entry = customtkinter.CTkEntry(self.login_frame, width=200, show="*", placeholder_text="password")
+        self.password_login_entry = customtkinter.CTkEntry(self.login_frame, width=200, show="*", placeholder_text="Password")
         self.password_login_entry.grid(row=4, column=0, padx=30, pady=(0, 15))
         self.login_enter_button = customtkinter.CTkButton(self.login_frame, text="Login", command=self.login_event, width=200)
         self.login_enter_button.grid(row=5, column=0, padx=30, pady=(15, 15))
         # create register frame
         self.register_frame = customtkinter.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
         self.register_frame.grid(row=3, column=0, sticky="ns")
-        self.username_register_entry = customtkinter.CTkEntry(self.register_frame, width=200, placeholder_text="username")
+        self.username_register_entry = customtkinter.CTkEntry(self.register_frame, width=200, placeholder_text="Username")
         self.username_register_entry.grid(row=3, column=0, padx=30, pady=(15, 15))
-        self.password_register_entry = customtkinter.CTkEntry(self.register_frame, width=200, show="*", placeholder_text="password")
+        self.password_register_entry = customtkinter.CTkEntry(self.register_frame, width=200, show="*", placeholder_text="Password")
         self.password_register_entry.grid(row=4, column=0, padx=30, pady=(0, 15))
         self.register_enter_button = customtkinter.CTkButton(self.register_frame, text="Register", command=self.register_event, width=200)
         self.register_enter_button.grid(row=5, column=0, padx=30, pady=(15, 15))
@@ -91,19 +91,82 @@ class App(customtkinter.CTk):
 
         # create flight adding frame
         self.flight_adding_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
-        self.flight_adding_frame.grid(row=0, column=1, sticky="ns")
-        self.navigation_frame_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Adding",
+        self.flight_adding_frame.grid_columnconfigure(1, weight=1)
+        self.flight_adding_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Add a flight",
                                                              compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.flight_adding_label.grid(row=0, column=0, columnspan=2, padx=20, pady=20, sticky="ew")
+
+        self.departure_place_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Departure place:", font=customtkinter.CTkFont(size=15))
+        self.departure_place_label.grid(row=1, column=0, padx=(20, 0), pady=(0, 15))
+        self.departure_place_entry = customtkinter.CTkEntry(self.flight_adding_frame, width=200)
+        self.departure_place_entry.grid(row=1, column=1, padx=20, pady=(0, 15))
+
+        self.arrival_place_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Arrival place:", font=customtkinter.CTkFont(size=15))
+        self.arrival_place_label.grid(row=2, column=0, padx=(20, 0), pady=(0, 15))
+        self.arrival_place_entry = customtkinter.CTkEntry(self.flight_adding_frame, width=200)
+        self.arrival_place_entry.grid(row=2, column=1, padx=20, pady=(0, 15))
+
+        self.departure_date_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Departure date:", font=customtkinter.CTkFont(size=15))
+        self.departure_date_label.grid(row=3, column=0, padx=(20, 0), pady=(0, 15))
+        self.departure_date_entry = customtkinter.CTkEntry(self.flight_adding_frame, width=200, placeholder_text="dd.mm.yyyy")
+        self.departure_date_entry.grid(row=3, column=1, padx=20, pady=(0, 15))
+
+        self.arrival_date_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Arrival date:", font=customtkinter.CTkFont(size=15))
+        self.arrival_date_label.grid(row=4, column=0, padx=(20, 0), pady=(0, 15))
+        self.arrival_date_entry = customtkinter.CTkEntry(self.flight_adding_frame, width=200, placeholder_text="dd.mm.yyyy")
+        self.arrival_date_entry.grid(row=4, column=1, padx=20, pady=(0, 15))
+
+        self.departure_time_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Departure time:", font=customtkinter.CTkFont(size=15))
+        self.departure_time_label.grid(row=5, column=0, padx=(20, 0), pady=(0, 15))
+        self.departure_time_entry = customtkinter.CTkEntry(self.flight_adding_frame, width=200, placeholder_text="hh:mm")
+        self.departure_time_entry.grid(row=5, column=1, padx=20, pady=(0, 15))
+        
+        self.arrival_time_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Arrival time:", font=customtkinter.CTkFont(size=15))
+        self.arrival_time_label.grid(row=6, column=0, padx=(20, 0), pady=(0, 15))
+        self.arrival_time_entry = customtkinter.CTkEntry(self.flight_adding_frame, width=200, placeholder_text="hh:mm")
+        self.arrival_time_entry.grid(row=6, column=1, padx=20, pady=(0, 15))
+
+        self.price_label = customtkinter.CTkLabel(self.flight_adding_frame, text="Price:", font=customtkinter.CTkFont(size=15))
+        self.price_label.grid(row=7, column=0, padx=(20, 0), pady=(0, 15))
+        self.price_entry = customtkinter.CTkEntry(self.flight_adding_frame, width=200, placeholder_text="")
+        self.price_entry.grid(row=7, column=1, padx=20, pady=(0, 15))
+
+        self.add_button = customtkinter.CTkButton(self.flight_adding_frame, text="Add", command=self.add_flight, width=200)
+        self.add_button.grid(row=8, column=0, columnspan=2)
 
         # create flight finding frame
         self.flight_finding_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
-        self.navigation_frame_label = customtkinter.CTkLabel(self.flight_finding_frame, text="Finding",
+        self.flight_finding_label = customtkinter.CTkLabel(self.flight_finding_frame, text="Finding",
                                                              compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.flight_finding_label.grid(row=0, column=0, padx=20, pady=20)
 
         # create report frame
         self.report_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
-        self.navigation_frame_label = customtkinter.CTkLabel(self.report_frame, text="Report",
+        self.report_label = customtkinter.CTkLabel(self.report_frame, text="Report",
                                                              compound="left", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.report_label.grid(row=0, column=0, padx=20, pady=20)
+
+    def add_flight(self):
+        con = db.connect("application_database.db")
+        cur = con.cursor()
+
+        sql = """ SELECT flight_id FROM flights """
+        cur.execute(sql)
+        result = cur.fetchall()
+
+        if len(result) == 0:
+            result.append([0])
+
+        sql = f""" INSERT INTO "flights"
+        (flight_id, departure_location, arrival_location, departure_date, arrival_date, departure_time, arrival_time, price)
+        VALUES ({result[-1][0] + 1}, {self.departure_place_entry.get()}, {self.arrival_place_entry.get()}, 
+                                                            {self.departure_place_entry.get()}, {self.arrival_place_entry.get()},
+                                                            {self.departure_place_entry.get()}, {self.arrival_place_entry.get()},
+                                                            {self.price_entry.get()}) 
+        """
+        cur.execute(sql)
+        con.commit()
+        con.close()
 
     def main_select_frame_by_name(self, name):
         # set button color for selected button
@@ -126,13 +189,13 @@ class App(customtkinter.CTk):
             self.report_frame.grid_forget()
 
     def flight_adding_button_event(self):
-        self.select_frame_by_name("adding")
+        self.main_select_frame_by_name("adding")
     
     def flight_finding_button_event(self):
-        self.select_frame_by_name("finding")
+        self.main_select_frame_by_name("finding")
     
     def report_button_event(self):
-        self.select_frame_by_name("report")
+        self.main_select_frame_by_name("report")
 
     def select_frame_by_name(self, name):
         # set button color for selected button
@@ -168,6 +231,8 @@ class App(customtkinter.CTk):
             self.main_frame.grid_forget()  # remove login frame
             self.home_frame.grid(row=0, column=0, sticky="nsew")
             self.main_select_frame_by_name("adding")
+            self.username_login_entry.delete(0, 100)
+            self.password_login_entry.delete(0, 100)
 
     def register_event(self):
         # add a user to the database
@@ -185,6 +250,8 @@ class App(customtkinter.CTk):
         cur.execute(sql)
         con.commit()
         con.close()
+        self.username_register_entry.delete(0, 100)
+        self.password_register_entry.delete(0, 100)
 
     def back_event(self):
         self.home_frame.grid_forget()  # remove home frame
@@ -192,5 +259,5 @@ class App(customtkinter.CTk):
         self.login_button_event()
 
 if __name__ == "__main__":
-    app = App(900, 600)
+    app = App(1200, 675)
     app.mainloop()
