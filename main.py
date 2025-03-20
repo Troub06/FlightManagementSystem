@@ -8,6 +8,14 @@ customtkinter.set_appearance_mode("dark")
 # Поиск полетов
 # Отчеты/вывод информации
 
+class All_flights_window(customtkinter.CTkToplevel):
+    def __init__(self):
+        super.__init__()
+        self.geometry("600x400")
+        # self.grid_columnconfigure(2, weight=1)
+        self.label = customtkinter.CTkLabel(self, text="ToplevelWindow")
+        self.label.grid(padx=20, pady=20)
+
 class Flight_add_frame(customtkinter.CTkFrame):
     cell_names = ["Departure place:", "Arrival place:", "Departure date:", "Arrival date:", "Departure time:", "Arrival time:", "Price:"]
     placeholders = ["", "", "dd.mm.yyyy", "dd.mm.yyyy", "hh:mm", "hh:mm", ""]
@@ -123,10 +131,10 @@ class App(customtkinter.CTk):
                                                    fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                    anchor="center", font=customtkinter.CTkFont(size=14), command=self.flight_finding_button_event)
         self.flight_finding_button.grid(row=2, column=0, sticky="ew")
-        self.report_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=60, border_spacing=10, text="See all flights",
+        self.all_flights_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=60, border_spacing=10, text="See all flights",
                                                    fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                    anchor="center", font=customtkinter.CTkFont(size=14), command=self.all_flights_button_event)
-        self.report_button.grid(row=3, column=0, sticky="ew")
+        self.all_flights_button.grid(row=3, column=0, sticky="ew")
         self.logout_button = customtkinter.CTkButton(self.navigation_frame, text="Logout", command=self.back_event, width=200)
         self.logout_button.grid(row=6, column=0, padx=30, pady=(15, 15))
 
@@ -136,11 +144,14 @@ class App(customtkinter.CTk):
         # create flight finding frame
         self.flight_finding_frame = Flight_find_frame(self, 20)
 
-        # create report frame
-        self.all_flights_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
-        self.report_label = customtkinter.CTkLabel(self.all_flights_frame, text="All flights",
-                                                             compound="center", font=customtkinter.CTkFont(size=15, weight="bold"))
-        self.report_label.grid(row=0, column=0, padx=20, pady=20)
+        # create another window with a frame with all flights
+        
+        # self.tmp_frame = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
+        # self.tmp_frame.grid(row=0, column=0, padx=10, pady=10)
+        # self.tmp_frame2 = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
+        # self.tmp_frame2.grid(row=0, column=1, padx=10, pady=10)
+        # self.tmp_frame3 = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
+        # self.tmp_frame3.grid(row=0, column=2, padx=10, pady=10)
 
     def add_flight(self):
         con = db.connect("application_database.db")
@@ -185,7 +196,7 @@ class App(customtkinter.CTk):
         # set button color for selected button
         self.flight_adding_button.configure(fg_color=("gray75", "gray25") if name == "adding" else "transparent")
         self.flight_finding_button.configure(fg_color=("gray75", "gray25") if name == "finding" else "transparent")
-        self.report_button.configure(fg_color=("gray75", "gray25") if name == "all_flights" else "transparent")
+        self.all_flights_button.configure(fg_color=("gray75", "gray25") if name == "all_flights" else "transparent")
 
         # show selected frame
         if name == "adding":
@@ -197,9 +208,7 @@ class App(customtkinter.CTk):
         else:
             self.flight_finding_frame.grid_forget()
         if name == "all_flights":
-            self.all_flights_frame.grid(row=0, column=1)
-        else:
-            self.all_flights_frame.grid_forget()
+            self.all_flights_frame = All_flights_window()
 
     def flight_adding_button_event(self):
         self.main_select_frame_by_name("adding")
