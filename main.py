@@ -2,19 +2,57 @@ import customtkinter
 from PIL import Image
 import os
 import sqlite3 as db
+import math
 
 customtkinter.set_appearance_mode("dark")
 
 # Поиск полетов
 # Отчеты/вывод информации
 
+class InfoLabel(customtkinter.CTkLabel):
+    def __init__(self, master: customtkinter.CTkFrame, string: str, information: list, rows: int):
+        super().__init__(master, text=f"{string} {information}", anchor="center")
+        self.grid(row=rows, column=0)
+
+class Flight(customtkinter.CTkFrame):
+    cell_names = ["Departure place:", "Arrival place:", "Departure date:", "Arrival date:", "Departure time:", "Arrival time:", "Price:"]
+
+    def __init__(self, master: customtkinter.CTkToplevel, c_radius: int, rows: int, columns: int, index: int, flights: list):
+        super().__init__(master, corner_radius=c_radius)
+        self.grid(row=rows, column=columns, padx=10, pady=10)
+        self.grid_columnconfigure(0, weight=1)
+        self.title = customtkinter.CTkLabel(self, text=f"Flight {index}", width=270, font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.title.grid(row=0, column=0)
+        for i in range(1, len(flights)):
+            self.departure_location_label = InfoLabel(self, self.cell_names[i-1], flights[i], i)
+
 class All_flights_window(customtkinter.CTkToplevel):
-    def __init__(self):
-        super.__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.geometry("600x400")
-        # self.grid_columnconfigure(2, weight=1)
-        self.label = customtkinter.CTkLabel(self, text="ToplevelWindow")
-        self.label.grid(padx=20, pady=20)
+        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, fg_color="transparent", width=580, height=400)
+        self.scrollable_frame.grid(row=0, column=0)
+
+        flights = self.get_all_flights()
+        self.flight_frames = []
+        lenght = len(flights)
+        index = 0
+        for r in range(math.ceil(lenght / 2)):
+            for c in range(2):
+                if index > lenght - 1: break
+                self.flight_frames.append(Flight(self.scrollable_frame, 20, r, c, index, flights[index]))
+                index += 1
+
+    def get_all_flights(self):
+        con = db.connect("application_database.db")
+        cur = con.cursor()
+        sql = """ SELECT * FROM flights """
+        cur.execute(sql)
+        result = cur.fetchall()
+        con.commit()
+        con.close()
+
+        return result
 
 class Flight_add_frame(customtkinter.CTkFrame):
     cell_names = ["Departure place:", "Arrival place:", "Departure date:", "Arrival date:", "Departure time:", "Arrival time:", "Price:"]
@@ -145,7 +183,7 @@ class App(customtkinter.CTk):
         self.flight_finding_frame = Flight_find_frame(self, 20)
 
         # create another window with a frame with all flights
-        
+        self.all_flights_frame = None
         # self.tmp_frame = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
         # self.tmp_frame.grid(row=0, column=0, padx=10, pady=10)
         # self.tmp_frame2 = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
@@ -208,7 +246,10 @@ class App(customtkinter.CTk):
         else:
             self.flight_finding_frame.grid_forget()
         if name == "all_flights":
-            self.all_flights_frame = All_flights_window()
+            if self.all_flights_frame is None or not self.all_flights_frame.winfo_exists():
+                self.all_flights_frame = All_flights_window(self)
+            else:
+                self.all_flights_frame.focus()
 
     def flight_adding_button_event(self):
         self.main_select_frame_by_name("adding")
