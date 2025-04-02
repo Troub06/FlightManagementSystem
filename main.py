@@ -6,8 +6,40 @@ import math
 
 customtkinter.set_appearance_mode("dark")
 
-# Поиск полетов
-# Отчеты/вывод информации
+class Find_flight_window(customtkinter.CTkToplevel):
+    def __init__(self, cells: list, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("600x400")
+        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, fg_color="transparent", width=580, height=400)
+        self.scrollable_frame.grid(row=0, column=0)
+
+        flights = self.get_suitable_flights(cells)
+        self.flight_frames = []
+        lenght = len(flights)
+        index = 0
+        for r in range(math.ceil(lenght / 2)):
+            for c in range(2):
+                if index > lenght - 1: break
+                self.flight_frames.append(Flight(self.scrollable_frame, r, c, index+1, flights[index]))
+                index += 1
+
+    def get_suitable_flights(selfj, cells: list):
+        con = db.connect("application_database.db")
+        cur = con.cursor()
+        sql = """ SELECT * FROM flights """
+        cur.execute(sql)
+        result = cur.fetchall()
+        print(result)
+        con.commit()
+        con.close()
+
+        flights = []
+        for i in range(len(result)):
+            for k in range(4):
+                if cells[k] != "" and cells[k] == result[i][k+1]:
+                    flights.append(result[i])
+
+        return flights
 
 class InfoLabel(customtkinter.CTkLabel):
     def __init__(self, master: customtkinter.CTkFrame, string: str, information: list, rows: int):
@@ -17,11 +49,11 @@ class InfoLabel(customtkinter.CTkLabel):
 class Flight(customtkinter.CTkFrame):
     cell_names = ["Departure place:", "Arrival place:", "Departure date:", "Arrival date:", "Departure time:", "Arrival time:", "Price:"]
 
-    def __init__(self, master: customtkinter.CTkToplevel, c_radius: int, rows: int, columns: int, index: int, flights: list):
-        super().__init__(master, corner_radius=c_radius)
+    def __init__(self, master: customtkinter.CTkToplevel, rows: int, columns: int, index: int, flights: list):
+        super().__init__(master)
         self.grid(row=rows, column=columns, padx=10, pady=10)
         self.grid_columnconfigure(0, weight=1)
-        self.title = customtkinter.CTkLabel(self, text=f"Flight {index}", width=270, font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.title = customtkinter.CTkLabel(self, text=f"Flight {index}", font=customtkinter.CTkFont(size=15, weight="bold"), width=270)
         self.title.grid(row=0, column=0)
         for i in range(1, len(flights)):
             self.departure_location_label = InfoLabel(self, self.cell_names[i-1], flights[i], i)
@@ -40,7 +72,7 @@ class All_flights_window(customtkinter.CTkToplevel):
         for r in range(math.ceil(lenght / 2)):
             for c in range(2):
                 if index > lenght - 1: break
-                self.flight_frames.append(Flight(self.scrollable_frame, 20, r, c, index, flights[index]))
+                self.flight_frames.append(Flight(self.scrollable_frame, r, c, index+1, flights[index]))
                 index += 1
 
     def get_all_flights(self):
@@ -228,6 +260,8 @@ class App(customtkinter.CTk):
 
         con.commit()
         con.close()
+
+        Find_flight_window(cells)
         # print(cells)
 
     def main_select_frame_by_name(self, name):
