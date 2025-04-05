@@ -3,6 +3,7 @@ from PIL import Image
 import os
 import sqlite3 as db
 import math
+from datetime import datetime
 
 customtkinter.set_appearance_mode("dark")
 
@@ -23,13 +24,12 @@ class Find_flight_window(customtkinter.CTkToplevel):
                 self.flight_frames.append(Flight(self.scrollable_frame, r, c, index+1, flights[index]))
                 index += 1
 
-    def get_suitable_flights(selfj, cells: list):
+    def get_suitable_flights(self, cells: list):
         con = db.connect("application_database.db")
         cur = con.cursor()
         sql = """ SELECT * FROM flights """
         cur.execute(sql)
         result = cur.fetchall()
-        print(result)
         con.commit()
         con.close()
 
@@ -169,6 +169,7 @@ class App(customtkinter.CTk):
         self.password_login_entry.grid(row=4, column=0, padx=30, pady=(0, 15))
         self.login_enter_button = customtkinter.CTkButton(self.login_frame, text="Login", command=self.login_event, width=200)
         self.login_enter_button.grid(row=5, column=0, padx=30, pady=(15, 15))
+        self.error_label = customtkinter.CTkLabel(self.login_frame, text="Wrong username or password!")
         # create register frame
         self.register_frame = customtkinter.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
         self.register_frame.grid(row=3, column=0, sticky="ns")
@@ -216,12 +217,20 @@ class App(customtkinter.CTk):
 
         # create another window with a frame with all flights
         self.all_flights_frame = None
-        # self.tmp_frame = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
-        # self.tmp_frame.grid(row=0, column=0, padx=10, pady=10)
-        # self.tmp_frame2 = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
-        # self.tmp_frame2.grid(row=0, column=1, padx=10, pady=10)
-        # self.tmp_frame3 = customtkinter.CTkFrame(self.all_flights_frame, corner_radius=20, width=280)
-        # self.tmp_frame3.grid(row=0, column=2, padx=10, pady=10)
+    
+    def is_valid_date(self, date_str):
+        try:
+            datetime.strptime(date_str, "%d.%m.%Y")
+            return True
+        except ValueError:
+            return False
+
+    def is_valid_time(self, time_str):
+        try:
+            datetime.strptime(time_str, "%H:%M")
+            return True
+        except ValueError:
+            return False
 
     def add_flight(self):
         con = db.connect("application_database.db")
@@ -234,12 +243,23 @@ class App(customtkinter.CTk):
         if len(result) == 0:
             result.append([0])
 
+        flight = [self.flight_adding_frame.cells[0].entry.get(), 
+                                                self.flight_adding_frame.cells[1].entry.get(), self.flight_adding_frame.cells[2].entry.get(),
+                                                self.flight_adding_frame.cells[3].entry.get(), self.flight_adding_frame.cells[4].entry.get(),
+                                                self.flight_adding_frame.cells[5].entry.get(), self.flight_adding_frame.cells[6].entry.get()]
+
+        for i in range(2, 4):
+            if self.is_valid_date(flight[i]) == False and flight[i] != "":
+                print("The date was written in a wrong format!")
+                return
+        for i in range(4, 6):
+            if self.is_valid_time(flight[i]) == False and flight[i] != "":
+                print("The time was written in a wrong format!")
+                return
+
         sql = f""" INSERT INTO "flights"
         (flight_id, departure_location, arrival_location, departure_date, arrival_date, departure_time, arrival_time, price)
-        VALUES ({result[-1][0] + 1}, "{self.flight_adding_frame.cells[0].entry.get()}", "{self.flight_adding_frame.cells[1].entry.get()}", 
-                                                            "{self.flight_adding_frame.cells[2].entry.get()}", "{self.flight_adding_frame.cells[3].entry.get()}",
-                                                            "{self.flight_adding_frame.cells[4].entry.get()}", "{self.flight_adding_frame.cells[5].entry.get()}",
-                                                            {self.flight_adding_frame.cells[6].entry.get()})
+        VALUES ({result[-1][0] + 1}, "{flight[0]}",  "{flight[1]}", "{flight[2]}", "{flight[3]}", "{flight[4]}", "{flight[5]}", "{flight[6]}")
         """
         cur.execute(sql)
         con.commit()
@@ -262,7 +282,6 @@ class App(customtkinter.CTk):
         con.close()
 
         Find_flight_window(cells)
-        # print(cells)
 
     def main_select_frame_by_name(self, name):
         # set button color for selected button
@@ -330,6 +349,11 @@ class App(customtkinter.CTk):
             self.main_select_frame_by_name("adding")
             self.username_login_entry.delete(0, 100)
             self.password_login_entry.delete(0, 100)
+            self.error_label.grid_forget()
+        else:
+            self.error_label.grid(row=6, column=0)
+            self.username_login_entry.delete(0, 100)
+            self.password_login_entry.delete(0, 100)
 
     def register_event(self):
         # add a user to the database
@@ -339,6 +363,9 @@ class App(customtkinter.CTk):
         sql = """ SELECT user_id FROM users """
         cur.execute(sql)
         result = cur.fetchall()
+
+        if len(result) == 0:
+            result.append([0])
 
         sql = f""" INSERT INTO "users"
         (user_id, username, password)
