@@ -1,5 +1,6 @@
-from datetime import datetime
 from src.configs import *
+
+from datetime import datetime
 
 class DatetimeChecker:
     def is_valid_date(self, date_str):
