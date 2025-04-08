@@ -10,22 +10,25 @@ class FlightAdder:
         self.datetime_checker = DatetimeChecker()
 
     def add_flight(self):
-        self.flight_id = self.get_flight_id()
-        self.flight = [self.app.flight_adding_frame.cells[0].entry.get(), 
-                                                self.app.flight_adding_frame.cells[1].entry.get(), self.app.flight_adding_frame.cells[2].entry.get(),
-                                                self.app.flight_adding_frame.cells[3].entry.get(), self.app.flight_adding_frame.cells[4].entry.get(),
-                                                self.app.flight_adding_frame.cells[5].entry.get(), self.app.flight_adding_frame.cells[6].entry.get()]
+        try:
+            self.flight_id = self.get_flight_id()
+            self.flight = self.get_flight_data()
 
-        for i in range(2, 4):
-            if self.datetime_checker.is_valid_date(self.flight[i]) == False and self.flight[i] != "":
-                print("The date was written in a wrong format!")
-                return
-        for i in range(4, 6):
-            if self.datetime_checker.is_valid_time(self.flight[i]) == False and self.flight[i] != "":
-                print("The time was written in a wrong format!")
-                return
+            for i in range(2, 4):
+                if self.datetime_checker.is_valid_date(self.flight[i]) == False and self.flight[i] != "":
+                    print("The date was written in a wrong format!")
+                    return
+            for i in range(4, 6):
+                if self.datetime_checker.is_valid_time(self.flight[i]) == False and self.flight[i] != "":
+                    print("The time was written in a wrong format!")
+                    return
 
-        self.insert_data()
+            self.insert_data()
+        except Exception as e:
+            print("Error adding flight:", e)
+
+    def get_flight_data(self):
+        return [cell.entry.get() for cell in self.app.flight_adding_frame.cells]
 
     def get_flight_id(self):
         con = db.connect(database_path)
