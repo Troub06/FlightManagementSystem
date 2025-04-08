@@ -1,4 +1,7 @@
 from src.configs import *
+from src.bin.add_flight import FlightAdder
+from src.bin.find_flight import FlightFinder
+from src.bin.show_all_fligts import ShowAllFlights
 
 import customtkinter
 from PIL import Image
@@ -103,7 +106,7 @@ class Flight_add_frame(customtkinter.CTkFrame):
         for i in range(len(self.cell_names)):
             self.cells.append(Cell(self, i+1, self.cell_names[i], self.placeholders[i]))
 
-        self.add_button = customtkinter.CTkButton(self, text="Add", command=master.add_flight, width=200)
+        self.add_button = customtkinter.CTkButton(self, text="Add", command=master.flight_adder.add_flight, width=200)
         self.add_button.grid(row=8, column=0, columnspan=2, pady=15)
 
 class Flight_find_frame(customtkinter.CTkFrame):
@@ -144,6 +147,10 @@ class FlightManagerApp(customtkinter.CTk):
         self.bg_image_label = customtkinter.CTkLabel(self, image=self.bg_image)
         self.bg_image_label.grid(row=0, column=0)
         self.logo_image = customtkinter.CTkImage(Image.open(logo_image), size=(36, 36))
+
+        self.flight_adder = FlightAdder(self)
+        # self.flight_finder = FlightFinder(self)
+        # self.show_all_flights = ShowAllFlights(self)
 
         # main frame
         self.main_frame = customtkinter.CTkFrame(self, corner_radius=0)
@@ -217,53 +224,6 @@ class FlightManagerApp(customtkinter.CTk):
 
         # create another window with a frame with all flights
         self.all_flights_frame = None
-    
-    def is_valid_date(self, date_str):
-        try:
-            datetime.strptime(date_str, "%d.%m.%Y")
-            return True
-        except ValueError:
-            return False
-
-    def is_valid_time(self, time_str):
-        try:
-            datetime.strptime(time_str, "%H:%M")
-            return True
-        except ValueError:
-            return False
-
-    def add_flight(self):
-        con = db.connect(database_path)
-        cur = con.cursor()
-
-        sql = """ SELECT flight_id FROM flights """
-        cur.execute(sql)
-        result = cur.fetchall()
-
-        if len(result) == 0:
-            result.append([0])
-
-        flight = [self.flight_adding_frame.cells[0].entry.get(), 
-                                                self.flight_adding_frame.cells[1].entry.get(), self.flight_adding_frame.cells[2].entry.get(),
-                                                self.flight_adding_frame.cells[3].entry.get(), self.flight_adding_frame.cells[4].entry.get(),
-                                                self.flight_adding_frame.cells[5].entry.get(), self.flight_adding_frame.cells[6].entry.get()]
-
-        for i in range(2, 4):
-            if self.is_valid_date(flight[i]) == False and flight[i] != "":
-                print("The date was written in a wrong format!")
-                return
-        for i in range(4, 6):
-            if self.is_valid_time(flight[i]) == False and flight[i] != "":
-                print("The time was written in a wrong format!")
-                return
-
-        sql = f""" INSERT INTO "flights"
-        (flight_id, departure_location, arrival_location, departure_date, arrival_date, departure_time, arrival_time, price)
-        VALUES ({result[-1][0] + 1}, "{flight[0]}",  "{flight[1]}", "{flight[2]}", "{flight[3]}", "{flight[4]}", "{flight[5]}", "{flight[6]}")
-        """
-        cur.execute(sql)
-        con.commit()
-        con.close()
 
     def find_flight(self):
         cells = []
