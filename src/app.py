@@ -2,7 +2,6 @@ from src.configs import *
 from src.bin.add_flight import FlightAdder
 from src.bin.find_flight import FlightFinder
 from src.bin.show_all_fligts import AllFlightsWindow
-from src.utils.flight_frame import Flight
 
 import customtkinter
 from PIL import Image
