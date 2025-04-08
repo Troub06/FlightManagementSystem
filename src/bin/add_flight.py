@@ -1,9 +1,11 @@
-import sqlite3 as db
 from src.configs import *
 from src.utils.datetime_checker import DatetimeChecker
 
+import sqlite3 as db
+import customtkinter
+
 class FlightAdder:
-    def __init__(self, app):
+    def __init__(self, app: customtkinter.CTk):
         self.app = app
         self.datetime_checker = DatetimeChecker()
 
